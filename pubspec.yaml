@@ -24,6 +24,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   material_design_icons_flutter: ^2.3.50
+  syncfusion_flutter_gauges: ^1.0.0-beta
 
 dev_dependencies:
   flutter_test:

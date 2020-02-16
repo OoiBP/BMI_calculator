@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 void main() => runApp(MyApp());
 
@@ -61,6 +62,7 @@ class MainViewState extends State<MainView> {
   bool _isMale = true;
   num _weight = 50.0;
   num _height = 170.0;
+  num _bmi = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -76,21 +78,29 @@ class MainViewState extends State<MainView> {
       });
     }
 
+    void _calculateBMI() {
+      setState(() {
+        _bmi = _weight / ((_height / 100) * (_height / 100));
+      });
+    }
+
     void _weightSliderChange(double newValue) {
       setState(() {
         _weight = newValue.toInt();
       });
+      _calculateBMI();
     }
 
     void _heightSliderChange(double newValue) {
       setState(() {
         _height = newValue.toInt();
       });
+      _calculateBMI();
     }
 
     Widget txtLabel(String text, num item) {
       return Container(
-        margin: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 5.0),
+        margin: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 5.0),
         padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
         child: Text(
           "$text: $item",
@@ -109,6 +119,7 @@ class MainViewState extends State<MainView> {
           WeightSlider(_weight, _weightSliderChange),
           txtLabel("Height", _height),
           HeightSlider(_height, _heightSliderChange),
+          BMIView(_bmi),
         ],
       ),
     );
@@ -155,7 +166,7 @@ class MaleGenderButton extends StatelessWidget {
         gradient: boy,
       ),
       child: FlatButton.icon(
-        padding: EdgeInsets.all(30.0),
+        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
         color: Colors.transparent,
         icon: Icon(MdiIcons.genderMale),
         onPressed: _onPress,
@@ -187,7 +198,7 @@ class FemaleGenderButton extends StatelessWidget {
         gradient: girl,
       ),
       child: FlatButton.icon(
-        padding: EdgeInsets.all(30.0),
+        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
         color: Colors.transparent,
         icon: Icon(MdiIcons.genderFemale),
         onPressed: _onPress,
@@ -243,32 +254,69 @@ class HeightSlider extends StatelessWidget {
   }
 }
 
-class CardView extends StatelessWidget {
+/// A widget that depends on syncfusion_flutter_gauges
+///
+/// @param _value The value that the pointer pointing to
+class BMIView extends StatelessWidget {
+  final num _value;
+
+  BMIView(this._value);
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Card(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            const ListTile(
-              leading: Icon(Icons.album),
-              title: Text('The Enchanted Nightingale'),
-              subtitle: Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-            ),
-            ButtonBar(
-              children: <Widget>[
-                FlatButton(
-                  child: const Text('BUY TICKETS'),
-                  onPressed: () {/* ... */},
-                ),
-                FlatButton(
-                  child: const Text('LISTEN'),
-                  onPressed: () {/* ... */},
+        child: Center(
+          child: Container(
+            child: SfRadialGauge(
+              axes: <RadialAxis>[
+                RadialAxis(
+                  minimum: 16.0,
+                  maximum: 35.0,
+                  ranges: <GaugeRange>[
+                    GaugeRange(
+                      startValue: 16.0,
+                      endValue: 18.5,
+                      color: Colors.yellow,
+                    ),
+                    GaugeRange(
+                      startValue: 18.6,
+                      endValue: 25.0,
+                      color: Colors.green,
+                    ),
+                    GaugeRange(
+                      startValue: 25.1,
+                      endValue: 30.0,
+                      color: Colors.orange,
+                    ),
+                    GaugeRange(
+                      startValue: 30.1,
+                      endValue: 35.0,
+                      color: Colors.red,
+                    ),
+                  ],
+                  pointers: <GaugePointer>[
+                    NeedlePointer(value: _value),
+                  ],
+                  annotations: <GaugeAnnotation>[
+                    GaugeAnnotation(
+                      widget: Container(
+                        child: Text(
+                          _value.toStringAsFixed(2),
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      angle: 90,
+                      positionFactor: 0.5,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
